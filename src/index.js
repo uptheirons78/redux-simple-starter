@@ -5,30 +5,39 @@ import API_KEY from './config';
 import SearchBar from './components/search_bar';
 import VideoList from './components/video_list';
 import VideoDetail from './components/video_detail';
+import _ from 'lodash';
 
 
 //App Component
 class App extends Component {
     constructor(props) {
         super(props);
-        this.state = { 
+        this.state = {
             videos: [],
-            selectedVideo: null 
+            selectedVideo: null
         };
 
-        YTSearch({key: API_KEY, term: 'surfboards'}, videos => {
-            this.setState({ 
+        this.videoSearch('marillion neverland');
+
+    }
+
+    videoSearch(term) {
+        YTSearch({key: API_KEY, term: term}, videos => {
+            this.setState({
                 videos: videos,
-                selectedVideo: videos[0] 
+                selectedVideo: videos[0]
             });
         });
     }
 
     render() {
+        //debouncing search
+        const videoSearch = _.debounce((term) => { this.videoSearch(term) }, 500);
+
         return (
             <div>
-                <SearchBar />
-                <VideoDetail video={this.state.selectedVideo} />
+                <SearchBar onSearchTermChange={ videoSearch }  />
+                <VideoDetail video={ this.state.selectedVideo } />
                 {/* videos is a react prop */}
                 <VideoList
                     onVideoSelect={selectedVideo => this.setState({selectedVideo})}
